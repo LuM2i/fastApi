@@ -2,15 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import pandas as pd
- 
-# Charger le modèle
-model = joblib.load("LightGBM_best_model.pkl")
- 
+from pydantic import BaseModel
+
+# Charger le modèle, le préprocesseur et les noms des features
+model = joblib.load("model.joblib")
+preprocessor = joblib.load("preprocessor.joblib")
+feature_names = joblib.load("feature_names.joblib")  # Liste des features utilisées après transformation
+
 # Créer une instance FastAPI
 app = FastAPI()
- 
- 
-# Autoriser toutes les origines, méthodes et en-têtes (à adapter si besoin) pour eviter cors
+
+# Configurer CORS (garde ton paramétrage initial)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8000"],  # Remplacez "*" par ["http://localhost:8000"] pour plus de sécurité
@@ -18,23 +20,45 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
- 
-# Définition de la route principale
+
+# Route principale
 @app.get("/")
 def home():
-    return {"message": "API de prédiction des admissions IRA"}
- 
+    return {"message": "API de prédiction d'inondation sur votre département"}
+
+# Route pour récupérer les features attendues
+@app.get("/features")
+def get_features():
+    return {"features": feature_names}
+
+# Définition du schéma des données attendues
+class PredictionInput(BaseModel):
+    data: dict
+
 # Route pour effectuer une prédiction
-@app.post("/predict/")
-def predict(data: dict):
+@app.post("/predict")
+def predict(input_data: PredictionInput):
     try:
         # Convertir les données en DataFrame
-        df = pd.DataFrame([data])
-       
+        df = pd.DataFrame([input_data.data])
+        # Tenter de convertir chaque colonne en numérique
+        df = df.apply(pd.to_numeric, errors='raise')
+
+        # Vérifier que toutes les features sont bien présentes
+        missing_features = [col for col in feature_names if col not in df.columns]
+        if missing_features:
+            return {"error": f"Features manquantes: {missing_features}"}
+
+        # Réordonner les colonnes pour correspondre au modèle
+        df = df[feature_names]
+
+        # # Transformer les données avec le préprocesseur
+        # df_transformed = preprocessor.transform(df)
+
         # Faire la prédiction
-        prediction = model.predict(df)
-       
-        return {"prediction_ira": int(prediction[0])}
-   
+        prediction = model.predict(df)  #df_transformed
+
+        return {"prediction_inondations_dans_votre_departement": int(prediction[0])}
+
     except Exception as e:
         return {"error": str(e)}
