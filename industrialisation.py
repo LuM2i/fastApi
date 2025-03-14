@@ -58,7 +58,10 @@ def predict(input_data: PredictionInput):
                             "nb_c_insee_meteo"]
 
         # Appliquer RobustScaler uniquement aux variables numériques
-        df[numeric_features] = preprocessor.transform(df)[:, -len(numeric_features):]
+        #df[numeric_features] = preprocessor.transform(df)[:, -len(numeric_features):]
+        # Appliquer RobustScaler uniquement aux variables numériques
+        df[numeric_features] = preprocessor.named_transformers_["extreme"].transform(df[numeric_features])
+
 
         # # Transformer les données avec le préprocesseur
         # df_transformed = preprocessor.transform(df)
