@@ -53,14 +53,12 @@ def predict(input_data: PredictionInput):
         df = df[feature_names]
 
         # Identifier les variables numériques nécessitant RobustScaler
-        numeric_features = ["resultat_obs_elab", "vent_moyen", "humidite", 
-                            "pluie_24h", "vent_direction", "nb_rafales_10min", 
-                            "nb_c_insee_meteo"]
+        numeric_to_scale = ["resultat_obs_elab", "vent_moyen", "pluie_24h", "nb_rafales_10min"]
 
-        # Appliquer RobustScaler uniquement aux variables numériques
-        #df[numeric_features] = preprocessor.transform(df)[:, -len(numeric_features):]
-        # Appliquer RobustScaler uniquement aux variables numériques
-        df[numeric_features] = preprocessor.named_transformers_["extreme"].transform(df[numeric_features])
+        # Appliquer RobustScaler uniquement sur ces colonnes
+        df[numeric_to_scale] = preprocessor.named_transformers_["extreme"].transform(df[numeric_to_scale])
+
+        
 
 
         # # Transformer les données avec le préprocesseur
