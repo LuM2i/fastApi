@@ -54,9 +54,13 @@ def predict(input_data: PredictionInput):
 
         # Identifier les variables numériques nécessitant RobustScaler
         numeric_to_scale = ["resultat_obs_elab", "vent_moyen", "pluie_24h", "nb_rafales_10min"]
+        # Réordonner selon feature_names
+        numeric_to_scale_ordered = [col for col in feature_names if col in numeric_to_scale]
 
         # Appliquer RobustScaler uniquement sur ces colonnes
-        df[numeric_to_scale] = preprocessor.named_transformers_["extreme"].transform(df[numeric_to_scale])
+        
+        df[numeric_to_scale_ordered] = preprocessor.named_transformers_["extreme"].transform(df[numeric_to_scale_ordered])
+
 
         
 
@@ -67,7 +71,21 @@ def predict(input_data: PredictionInput):
         # Faire la prédiction
         prediction = model.predict(df)  #df_transformed
 
-        return {"prediction_inondations_dans_votre_departement": int(prediction[0])}
+        pred_value = int(prediction[0])
+        
+        # Appliquer la logique conditionnelle pour créer un message personnalisé
+        if pred_value == 0:
+            annonce = "Risque faible d'inondation"
+        elif pred_value == 1:
+            annonce = "Attention, le risque d'inondation dans votre département est important"
+        else:
+            annonce = "{}"
+        
+        # Retourner à la fois la prédiction et le message personnalisé
+        return {
+            "prediction_inondations_dans_votre_departement": pred_value,
+            "annonce": annonce
+        }
 
     except Exception as e:
         return {"error": str(e)}
