@@ -90,7 +90,5 @@ def predict(input_data: PredictionInput):
     except Exception as e:
         return {"error": str(e)}
     
-    print("Colonnes de df avant transformation :", df.columns.tolist())
-    print("feature_names :", feature_names)
-
+    
 
