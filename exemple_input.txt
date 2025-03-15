@@ -24,7 +24,7 @@
     "statut_commune_unite_urbaine_I":0,
     "inondable_0":0,
     "inondable_1":1,
-    "montagne1_0":0,
+    "montagne1_0":1,
     "montagne1_1":0,
     "zone_defavorisee_simple1_0":0,
     "zone_defavorisee_simple1_1":1,

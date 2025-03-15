@@ -8,7 +8,7 @@ from pydantic import BaseModel
 model = joblib.load("model.joblib")
 preprocessor = joblib.load("preprocessor.joblib")
 feature_names = joblib.load("feature_names.joblib")  # Liste des features utilisées après transformation
-
+print("feature_names in model:", feature_names)
 # Créer une instance FastAPI
 app = FastAPI()
 
@@ -49,18 +49,23 @@ def predict(input_data: PredictionInput):
         if missing_features:
             return {"error": f"Features manquantes: {missing_features}"}
 
-        # Réordonner les colonnes pour correspondre au modèle
-        df = df[feature_names]
+        # # Réordonner les colonnes pour correspondre au modèle
+        # df = df[feature_names]
+        # Réordonner les colonnes pour qu'elles correspondent exactement à feature_names
+        df = df.reindex(columns=feature_names)
 
-        # Identifier les variables numériques nécessitant RobustScaler
-        numeric_to_scale = ["resultat_obs_elab", "vent_moyen", "pluie_24h", "nb_rafales_10min"]
-        # Réordonner selon feature_names
-        numeric_to_scale_ordered = [col for col in feature_names if col in numeric_to_scale]
+        # # Identifier les variables numériques nécessitant RobustScaler
+        # numeric_to_scale = ["resultat_obs_elab", "vent_moyen", "pluie_24h", "nb_rafales_10min"]
+        # # Réordonner selon feature_names
+        # numeric_to_scale_ordered = [col for col in feature_names if col in numeric_to_scale]
 
-        # Appliquer RobustScaler uniquement sur ces colonnes
+        # # Appliquer RobustScaler uniquement sur ces colonnes
         
-        df[numeric_to_scale_ordered] = preprocessor.named_transformers_["extreme"].transform(df[numeric_to_scale_ordered])
+        # df[numeric_to_scale_ordered] = preprocessor.named_transformers_["extreme"].transform(df[numeric_to_scale_ordered])
 
+        # Utiliser explicitement la liste d'extreme_features dans le même ordre que lors du fit
+        extreme_features_order = ['resultat_obs_elab', 'nb_rafales_10min', 'pluie_24h', 'vent_moyen']
+        df[extreme_features_order] = preprocessor.named_transformers_["extreme"].transform(df[extreme_features_order])
 
         
 
@@ -70,7 +75,7 @@ def predict(input_data: PredictionInput):
 
         # Faire la prédiction
         prediction = model.predict(df)  #df_transformed
-
+        print("Colonnes de df avant transformation :", df.columns.tolist())
         pred_value = int(prediction[0])
         
         # Appliquer la logique conditionnelle pour créer un message personnalisé
@@ -89,6 +94,9 @@ def predict(input_data: PredictionInput):
 
     except Exception as e:
         return {"error": str(e)}
-    
+
+
+
+
     
 
