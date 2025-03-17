@@ -76,8 +76,8 @@
       <div class="container">
         <h1>Machine Learning API Prediction</h1>
         <p>
-          Utilisez notre API de Machine Learning pour effectuer des prédictions
-          basées sur des données météorologiques et de pollution.
+          Utilisez notre API pour prédire le risque d'inondation grace 
+          aux prévisions météo et au débit des cours d'eaux de votre localité.
         </p>
       </div>
     </section>
@@ -165,7 +165,7 @@
           formData[key] = parseFloat(document.getElementById(key).value);
         }
 
-        fetch("http://localhost:8000/predict/", {
+        fetch("https://web-prediction-inondation-37.onrender.com/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
