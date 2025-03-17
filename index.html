@@ -76,8 +76,7 @@
       <div class="container">
         <h1>Machine Learning API Prediction</h1>
         <p>
-          Utilisez notre API pour prédire le risque d'inondation grace 
-          aux prévisions météo et au débit des cours d'eaux de votre localité.
+          Utilisez notre API pour prédire le risque d'inondation grâce aux prévisions météo et au débit des cours d'eaux de votre localité.
         </p>
       </div>
     </section>
@@ -95,6 +94,7 @@
       </div>
     </div>
     <script>
+      // Définition de tous les champs attendus par l'API
       const fields = {
         "academie_nom_Amiens": 0,
         "academie_nom_Besançon": 1,
@@ -124,6 +124,17 @@
         "montagne1_1": 0,
         "zone_defavorisee_simple1_0": 0,
         "zone_defavorisee_simple1_1": 1,
+        "mois_lettre_April": 0,
+        "mois_lettre_August": 0,
+        "mois_lettre_December": 0,
+        "mois_lettre_February": 0,
+        "mois_lettre_January": 0,
+        "mois_lettre_July": 0,
+        "mois_lettre_June": 0,
+        "mois_lettre_March": 0,
+        "mois_lettre_May": 0,
+        "mois_lettre_November": 0,
+        "mois_lettre_October": 0,
         "mois_lettre_September": 1,
         "resultat_obs_elab": 600000,
         "vent_moyen": 70,
@@ -134,6 +145,7 @@
         "nb_c_insee_meteo": 5
       };
 
+      // Création dynamique des inputs dans le formulaire
       const inputFieldsDiv = document.getElementById("inputFields");
       for (const key in fields) {
         const div = document.createElement("div");
@@ -157,6 +169,7 @@
         inputFieldsDiv.appendChild(div);
       }
 
+      // Gestion de la soumission du formulaire
       document.getElementById("predictionForm").addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -165,6 +178,7 @@
           formData[key] = parseFloat(document.getElementById(key).value);
         }
 
+        // Envoi de la requête POST à l'API
         fetch("https://inonadationprediction.onrender.com/predict", {
           method: "POST",
           headers: {
@@ -172,7 +186,12 @@
           },
           body: JSON.stringify({ data: formData }),
         })
-          .then((response) => response.json())
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erreur réseau : " + response.status);
+            }
+            return response.json();
+          })
           .then((data) => {
             document.getElementById("result").textContent = JSON.stringify(data, null, 2);
           })
