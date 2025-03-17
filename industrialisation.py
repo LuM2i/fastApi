@@ -15,7 +15,7 @@ app = FastAPI()
 # Configurer CORS (garde ton paramétrage initial)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],  # Remplacez "*" par ["http://localhost:8000"] pour plus de sécurité
+    allow_origins=["https://web-prediction-inondation-37.onrender.com"],  # Remplacez "*" par ["http://localhost:8000"] pour plus de sécurité
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,7 +24,7 @@ app.add_middleware(
 # Route principale
 @app.get("/")
 def home():
-    return {"message": "API de prédiction d'inondation sur votre département"}
+    return {"message": "API de prédiction des risques d'inondation dans votre localité"}
 
 # Route pour récupérer les features attendues
 @app.get("/features")
